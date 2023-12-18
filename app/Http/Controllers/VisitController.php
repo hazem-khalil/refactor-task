@@ -20,31 +20,11 @@ class VisitController extends Controller
     # load member name with it
     # order by max loyalty points
 
-    public function index(): AnonymousResourceCollection
+    public function index()
     {
-        return "Hello hazem";
-        // $visits = Visit::query()
-        //     ->when(request()->search, function ($query) {
-        //         $query->whereHas('member', function ($query) {
-        //             $query->where('first_name', 'like', '%' . request()->search . '%')
-        //                 ->orWhere('last_name', 'like', '%' . request()->search . '%')
-        //                 ->orWhere('email', 'like', '%' . request()->search . '%')
-        //                 ->orWhere('phone', 'like', '%' . request()->search . '%');
-        //         });
-        //     })
-        //     ->when(request()->search, function ($query) {
-        //         $query->whereHas('cashier', function ($query) {
-        //             $query->where('name', 'like', '%' . request()->search . '%');
-        //         });
-        //     })
-        //     ->when(request()->search, function ($query) {
-        //         $query->whereHas('member', function ($query) {
-        //             $query->where('phone', 'like', '%' . request()->search . '%');
-        //         });
-        //     })
-        //     ->all();
-
-        // return VisitResource::collection($visits);
+        return Visit::orderByPoints()->filter(
+            request(['member', 'cashier', 'loyalty', 'receipt'])
+        )->paginate();
     }
 
 
@@ -62,11 +42,14 @@ class VisitController extends Controller
         $cashier = Cashier::find($request->cashier_id);
         $settings = $cashier->settings;
 
-        if ($settings->loyalty_model == 'first_model' && $request->receipt >= $settings->min_amount) {
+        if ($settings->loyalty_model == 'first_model' && $request->receipt >= $settings->min_amount) 
+        {
             $visit->loyalty()->create([
                 'points' => $request->receipt * $settings->factor,
             ]);
-        } elseif ($settings->loyalty_model == 'second_model' && $request->receipt >= $settings->min_amount) {
+        } 
+        elseif ($settings->loyalty_model == 'second_model' && $request->receipt >= $settings->min_amount)
+        {
             $visit->loyalty()->create([
                 'points' => $request->receipt / $settings->factor,
             ]);
