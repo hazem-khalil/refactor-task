@@ -41,19 +41,15 @@ class VisitController extends Controller
         $visit = Visit::create($request->all());
         $cashier = Cashier::find($request->cashier_id);
         $settings = $cashier->settings;
-
-        if ($settings->loyalty_model == 'first_model' && $request->receipt >= $settings->min_amount) 
-        {
-            $visit->loyalty()->create([
-                'points' => $request->receipt * $settings->factor,
-            ]);
-        } 
-        elseif ($settings->loyalty_model == 'second_model' && $request->receipt >= $settings->min_amount)
-        {
-            $visit->loyalty()->create([
-                'points' => $request->receipt / $settings->factor,
-            ]);
+        // Not comfortable with this little dublication here.
+        if ($request->receipt < $settings->min_amount) {
+            throw new \Exception(); // Or whatever you going to do in this case.
         }
+
+        $visit->loyalty()->create([
+            'points' => self::itemPoints($settings->loyalty_model, $request->receipt, $settings->factor)
+        ]);
+
     }
 
     public function update(Request $request, Visit $visit)
@@ -61,15 +57,24 @@ class VisitController extends Controller
         $visit->update($request->all());
         $cashier = Cashier::find($request->cashier_id);
         $settings = $cashier->settings;
-        if ($settings->loyalty_model == 'first_model' && $request->receipt >= $settings->min_amount) {
-            $visit->loyalty()->create([
-                'points' => $request->receipt * $settings->factor,
-            ]);
-        } elseif ($settings->loyalty_model == 'second_model' && $request->receipt >= $settings->min_amount) {
-            $visit->loyalty()->create([
-                'points' => $request->receipt / $settings->factor,
-            ]);
+
+        if ($request->receipt < $settings->min_amount) {
+            throw new \Exception(); // Or whatever you going to do in this case.
         }
+
+
+        $visit->loyalty()->create([
+            'points' => self::itemPoints($settings->loyalty_model, $request->receipt, $settings->factor)
+        ]);
+    }
+
+    public static function itemPoints($model, $reqValue, $factor)
+    {
+        return match ($model) {
+            'first_model' => $reqValue * $factor,
+            'second_model' => $reqValue / $factor,
+            default => 0 // OR whatever the default value is.
+        };
     }
 
     public function destroy(Visit $visit)
