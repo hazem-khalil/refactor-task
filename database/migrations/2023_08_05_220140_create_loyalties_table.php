@@ -8,7 +8,7 @@ return new class extends Migration {
 
     public function up(): void
     {
-        Schema::create('loyalty', function (Blueprint $table) {
+        Schema::create('loyalties', function (Blueprint $table) {
             $table->id();
             $table->decimal('points');
             $table->foreignId('visit_id')->constrained();

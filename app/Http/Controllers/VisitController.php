@@ -10,7 +10,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class VisitController extends Controller
 {
-    # index: to get visit with search by member name
+    # index: to get vdith search by member name
     # filter by member phone number
     # search by cashier name
     # search by date
@@ -22,28 +22,29 @@ class VisitController extends Controller
 
     public function index(): AnonymousResourceCollection
     {
-        $visits = Visit::query()
-            ->when(request()->search, function ($query) {
-                $query->whereHas('member', function ($query) {
-                    $query->where('first_name', 'like', '%' . request()->search . '%')
-                        ->orWhere('last_name', 'like', '%' . request()->search . '%')
-                        ->orWhere('email', 'like', '%' . request()->search . '%')
-                        ->orWhere('phone', 'like', '%' . request()->search . '%');
-                });
-            })
-            ->when(request()->search, function ($query) {
-                $query->whereHas('cashier', function ($query) {
-                    $query->where('name', 'like', '%' . request()->search . '%');
-                });
-            })
-            ->when(request()->search, function ($query) {
-                $query->whereHas('member', function ($query) {
-                    $query->where('phone', 'like', '%' . request()->search . '%');
-                });
-            })
-            ->all();
+        return "Hello hazem";
+        // $visits = Visit::query()
+        //     ->when(request()->search, function ($query) {
+        //         $query->whereHas('member', function ($query) {
+        //             $query->where('first_name', 'like', '%' . request()->search . '%')
+        //                 ->orWhere('last_name', 'like', '%' . request()->search . '%')
+        //                 ->orWhere('email', 'like', '%' . request()->search . '%')
+        //                 ->orWhere('phone', 'like', '%' . request()->search . '%');
+        //         });
+        //     })
+        //     ->when(request()->search, function ($query) {
+        //         $query->whereHas('cashier', function ($query) {
+        //             $query->where('name', 'like', '%' . request()->search . '%');
+        //         });
+        //     })
+        //     ->when(request()->search, function ($query) {
+        //         $query->whereHas('member', function ($query) {
+        //             $query->where('phone', 'like', '%' . request()->search . '%');
+        //         });
+        //     })
+        //     ->all();
 
-        return VisitResource::collection($visits);
+        // return VisitResource::collection($visits);
     }
 
 
